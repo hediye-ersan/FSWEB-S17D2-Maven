@@ -4,6 +4,9 @@ import com.workintech.s17d2.model.*;
 import com.workintech.s17d2.tax.Taxable;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.swing.*;
@@ -16,7 +19,6 @@ import java.util.Map;
 public class DeveloperController {
     public Map<Integer, Developer> developers;
     private final Taxable taxable;
-
 
     @Autowired
     public DeveloperController(Taxable taxable) {
@@ -42,7 +44,7 @@ public class DeveloperController {
         return developers.get(id);
     }
     @PostMapping
-    public void addDeveloper(@RequestBody Developer developer) {
+    public ResponseEntity<Developer> addDeveloper(@RequestBody Developer developer) {
         double taxRate = 0;
         if(developer instanceof JuniorDeveloper){
             developer.setSalary(developer.getSalary() - developer.getSalary() * taxable.getSimpleTaxRate() / 100);
@@ -52,6 +54,7 @@ public class DeveloperController {
             developer.setSalary(developer.getSalary() - developer.getSalary() * taxable.getUpperTaxRate() / 100);
         }
         developers.put(developer.getId(), developer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(developer);
     }
 
     @PutMapping("/{id}")
