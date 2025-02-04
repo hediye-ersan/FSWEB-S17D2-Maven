@@ -1,9 +1,6 @@
 package com.workintech.s17d2.rest;
 
-import com.workintech.s17d2.model.Developer;
-import com.workintech.s17d2.model.JuniorDeveloper;
-import com.workintech.s17d2.model.MidDeveloper;
-import com.workintech.s17d2.model.SeniorDeveloper;
+import com.workintech.s17d2.model.*;
 import com.workintech.s17d2.tax.Taxable;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +27,12 @@ public class DeveloperController {
     @PostConstruct
     public void init() {
         this.developers = new HashMap<>();
-        developers.put(1, new JuniorDeveloper(1, "Alice", 50000));
-        developers.put(2, new MidDeveloper(2, "Bob", 70000));
-        developers.put(3, new SeniorDeveloper(3, "Charlie", 100000));
+        developers.put(1, new Developer(1, "Alice", 50000, Experience.SENIOR));
+        developers.put(2, new Developer(2, "Bob", 70000, Experience.MID));
+        developers.put(3, new Developer(3, "Charlie", 100000, Experience.JUNIOR));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping
     public List<Developer> getAllDevelopers(){
        return developers.values().stream().toList();
     }
@@ -45,7 +42,8 @@ public class DeveloperController {
         return developers.get(id);
     }
     @PostMapping
-    public void addDeveloper(Developer developer){
+    public void addDeveloper(@RequestBody Developer developer) {
+        double taxRate = 0;
         if(developer instanceof JuniorDeveloper){
             developer.setSalary(developer.getSalary() - developer.getSalary() * taxable.getSimpleTaxRate() / 100);
         } else if (developer instanceof MidDeveloper) {
@@ -57,7 +55,7 @@ public class DeveloperController {
     }
 
     @PutMapping("/{id}")
-    public void updateDeveloper(@PathVariable int id, @RequestBody Developer developer){
+    public void updateDeveloper(@PathVariable int id, @RequestBody Developer developer) {
         developers.put(id, developer);
     }
 
